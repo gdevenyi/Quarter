@@ -214,7 +214,7 @@ sim_ac_pkgconfig_check_coin_failed=true
 AC_ARG_ENABLE(
   [pkgconfig],
   AC_HELP_STRING([--enable-pkgconfig], 
-  [enable pkgconfig usage for Coin/Qt4 detection [[default=yes]]]), 
+  [enable pkgconfig usage for Coin/Qt5 detection [[default=yes]]]), 
   [
   case $enableval in
     no) sim_ac_enable_pkgconfig=false ;;
@@ -310,17 +310,17 @@ if $sim_ac_enable_pkgconfig && $sim_ac_build_library; then
     sim_ac_pkgconfig_check_coin_failed=true
   ])
 
-  PKG_CHECK_MODULES([Qt4], [QtCore QtGui QtOpenGL QtXml], [
-    QT_USE_CPPFLAGS="$QT_USE_CPPFLAGS $Qt4_CFLAGS"
-    QT_USE_CXXFLAGS="$QT_USE_CXXFLAGS $Qt4_CFLAGS"
-    QT_USE_LDFLAGS="$QT_USE_LDFLAGS $Qt4_LIBS"
-    QT_USE_LIBS="$Qt4_LIBS $QT_USE_LIBS"
+  PKG_CHECK_MODULES([Qt5], [Qt5Core Qt5Gui Qt5OpenGL Qt5Xml], [
+    QT_USE_CPPFLAGS="$QT_USE_CPPFLAGS $Qt5_CFLAGS"
+    QT_USE_CXXFLAGS="$QT_USE_CXXFLAGS $Qt5_CFLAGS"
+    QT_USE_LDFLAGS="$QT_USE_LDFLAGS $Qt5_LIBS"
+    QT_USE_LIBS="$Qt5_LIBS $QT_USE_LIBS"
   
-    QT_USE_LIBDIR=`$PKG_CONFIG --variable=libdir QtCore`
-    QT_USE_INCDIR=`dirname \`$PKG_CONFIG --variable=includedir QtCore\``
+    QT_USE_LIBDIR=`$PKG_CONFIG --variable=libdir Qt5Core`
+    QT_USE_INCDIR=`$PKG_CONFIG --variable=includedir Qt5Core`
 
     AC_MSG_CHECKING([for moc])
-    MOC=`$PKG_CONFIG --variable=moc_location QtCore`
+    MOC=`$PKG_CONFIG --variable=exec_prefix Qt5Core`/bin/moc
     if test -z $MOC; then
       SIM_AC_ERROR([no-moc])
     fi
@@ -329,7 +329,7 @@ if $sim_ac_enable_pkgconfig && $sim_ac_build_library; then
     if test -x $MOC; then
       AC_MSG_RESULT([$MOC])
     else
-      AC_MSG_RESULT([QtCore pkg-config provided moc_location points to non-existing path])
+      AC_MSG_RESULT([Qt5Core pkg-config provided moc_location points to non-existing path])
       MOC=""  
       AC_PATH_PROG([MOC], [moc], [false], [$PATH])
       if test x"$MOC" = x"false"; then
@@ -338,7 +338,7 @@ if $sim_ac_enable_pkgconfig && $sim_ac_build_library; then
     fi
 
     AC_MSG_CHECKING([for uic])
-    UIC=`$PKG_CONFIG --variable=uic_location QtCore`
+    UIC=`$PKG_CONFIG --variable=exec_prefix Qt5Core`/bin/uic
     if test -z $UIC; then
       SIM_AC_ERROR([no-uic])
     fi
@@ -347,7 +347,7 @@ if $sim_ac_enable_pkgconfig && $sim_ac_build_library; then
     if test -x $UIC; then
       AC_MSG_RESULT([$UIC])
     else
-      AC_MSG_RESULT([QtCore pkg-config provided uic_location points to non-existing path])
+      AC_MSG_RESULT([Qt5Core pkg-config provided uic_location points to non-existing path])
       UIC=""
       AC_PATH_PROG([UIC], [uic], [false], [$PATH])
       if test x"$UIC" = x"false"; then
@@ -367,7 +367,7 @@ if $sim_ac_enable_pkgconfig && $sim_ac_build_library; then
       SIM_AC_ERROR([no-rcc])      
     fi  
  
-    QT_VERSION=`$PKG_CONFIG --modversion QtCore`
+    QT_VERSION=`$PKG_CONFIG --modversion Qt5Core`
     SIM_AC_CONFIGURATION_SETTING([Qt version], [$QT_VERSION])
     AC_SUBST([QT_VERSION])
 
@@ -544,7 +544,7 @@ esac
 # we use some extra libs in Quarter FIXME: clean up this mess! (20071116 frodo)
 if $sim_cv_have_qt_framework; then
   QT_USE_INCDIR=${sim_ac_qt_framework_dir}
-  QT_USE_LIBS="$QT_USE_LIBS -Wl,-framework,QtXml -Wl,-framework,QtScript -Wl,-framework,QtDesigner -L${sim_ac_qt_framework_dir} -lQtUiTools"
+  QT_USE_LIBS="$QT_USE_LIBS -Wl,-framework,Qt5Xml -Wl,-framework,Qt5Script -Wl,-framework,Qt5Designer -L${sim_ac_qt_framework_dir} -lQt5UiTools"
 else
   case $host_os in
     cygwin | mingw32) sim_ac_qt_windows=true ;;
@@ -559,13 +559,13 @@ else
     fi
 
     if $QUARTER_STATIC; then
-      QT_USE_LIBS="-lQtUiTools${sim_ac_qt_suffix} $QT_USE_LIBS -lQtDesigner${sim_ac_qt_suffix} -lQtXml${sim_ac_qt_suffix}"
+      QT_USE_LIBS="-lQt5UiTools${sim_ac_qt_suffix} $QT_USE_LIBS -lQt5Designer${sim_ac_qt_suffix} -lQt5Xml${sim_ac_qt_suffix}"
     else
-      QT_USE_LIBS="-lQtUiTools${sim_ac_qt_suffix} $QT_USE_LIBS -lQtDesigner${sim_ac_qt_suffix}4 -lQtXml${sim_ac_qt_suffix}4"
+      QT_USE_LIBS="-lQt5UiTools${sim_ac_qt_suffix} $QT_USE_LIBS -lQt5Designer${sim_ac_qt_suffix}5 -lQt5Xml${sim_ac_qt_suffix}5"
     fi
 
   else
-    QT_USE_LIBS="-lQtUiTools -lQtDesigner -lQtXml $QT_USE_LIBS"
+    QT_USE_LIBS="-lQt5UiTools -lQt5Designer -lQt5Xml $QT_USE_LIBS"
   fi
 fi
 
