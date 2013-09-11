@@ -39,10 +39,9 @@
 
 #include <Quarter/devices/Mouse.h>
 
-#include <QtCore/QEvent>
-#include <QtCore/QSize>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QWheelEvent>
+#include <QEvent>
+#include <QSize>
+#include <QWheelEvent>
 
 #include <Inventor/SbVec2s.h>
 #include <Inventor/events/SoEvents.h>

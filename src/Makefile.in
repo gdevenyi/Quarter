@@ -255,7 +255,8 @@ target_alias = @target_alias@
 target_cpu = @target_cpu@
 target_os = @target_os@
 target_vendor = @target_vendor@
-SUBDIRS = Quarter plugins examples
+#SUBDIRS = Quarter plugins examples
+SUBDIRS = Quarter plugins
 all: all-recursive
 
 .SUFFIXES:

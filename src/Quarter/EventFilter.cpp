@@ -36,8 +36,8 @@
 
 #include <Quarter/eventhandlers/EventFilter.h>
 
-#include <QtCore/QEvent>
-#include <QtGui/QMouseEvent>
+#include <QEvent>
+#include <QMouseEvent>
 
 #include <Inventor/SoEventManager.h>
 #include <Inventor/events/SoLocation2Event.h>
