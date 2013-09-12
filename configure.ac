@@ -22,25 +22,6 @@ AC_CONFIG_AUX_DIR(cfg)
 
 AC_CANONICAL_SYSTEM
 
-# *******************************************************************
-# If the Microsoft Visual C++ cl.exe compiler is available, set us up for
-# compiling with it and to generate an MSWindows .dll file.
-
-SIM_AC_SETUP_MSVCPP_IFELSE
-
-SIM_AC_MSVC_DSP_ENABLE_OPTION
-
-if $BUILD_WITH_MSVC; then
-  SIM_AC_SETUP_MSVCRT([
-    CPPFLAGS="$CPPFLAGS $sim_ac_msvcrt_CPPFLAGS"
-    CFLAGS="$CFLAGS $sim_ac_msvcrt_CFLAGS"
-    CXXFLAGS="$CXXFLAGS $sim_ac_msvcrt_CXXFLAGS"
-    LDFLAGS="$LDFLAGS $sim_ac_msvcrt_LDFLAGS"
-  ])
-fi
-
-AM_CONDITIONAL(BUILD_WITH_MSVC, $BUILD_WITH_MSVC)
-
 AC_SUBST([QUARTER_MAJOR_VERSION], [QUARTER_MAJOR])
 AC_SUBST([QUARTER_MINOR_VERSION], [QUARTER_MINOR])
 AC_SUBST([QUARTER_MICRO_VERSION], [QUARTER_MICRO])
@@ -62,7 +43,7 @@ AC_DEFINE_UNQUOTED([QUARTER_VERSION], ["QUARTER_VERSION"],
 AM_CONFIG_HEADER(config.h)
 
 
-AM_INIT_AUTOMAKE(Quarter, $QUARTER_VERSION)
+AM_INIT_AUTOMAKE([subdir-objects])
 AM_MAINTAINER_MODE
 AC_PREREQ(2.50)
 AC_PROG_CC
@@ -625,34 +606,6 @@ AC_SUBST([QT_DESIGNER_PLUGIN_PATH])
 
 QUARTER_RELEASE=
 
-if $BUILD_WITH_MSVC; then
-  SIM_AC_CONFIGURATION_SETTING([C library type], [$sim_ac_msvcrt])
-  case $enable_symbols in
-  no | false)
-    QUARTER_RELEASE=true
-    ;;
-    *)
-    QUARTER_RELEASE=false
-    ;;
-  esac
-fi
-
-if $BUILD_WITH_MSVC; then
-  if $QUARTER_RELEASE; then
-    if $QUARTER_STATIC; then
-      SIM_AC_CONFIGURATION_SETTING([Quarter build type], [static .lib, no symbols])
-    else
-      SIM_AC_CONFIGURATION_SETTING([Quarter build type], [dynamic .dll, no symbols])
-    fi
-  else
-    if $QUARTER_STATIC; then
-      SIM_AC_CONFIGURATION_SETTING([Quarter build type], [static .lib + .pdb])
-    else
-      SIM_AC_CONFIGURATION_SETTING([Quarter build type], [dynamic .dll + .pdb])
-    fi
-  fi
-fi
-
 # **************************************************************************
 # Compiler control.
 
@@ -671,12 +624,6 @@ SIM_AC_DEBUGSYMBOLS
 # in a separate variable for the examples
 AC_SUBST([EXAMPLES_EXTRA_LIBS])
 EXAMPLES_EXTRA_LIBS="$QT_USE_LIBS $COIN_USE_LIBS"
-
-# defer linking with Qt and Coin to the app if we're building a static .lib
-if $QUARTER_STATIC && $BUILD_WITH_MSVC; then
-  QT_USE_LIBS=
-  COIN_USE_LIBS=
-fi
 
 QUARTER_USE_LDFLAGS="-L../Quarter"
 QUARTER_USE_LIBS="-lQuarter"
@@ -701,37 +648,6 @@ if $sim_ac_win32_declspec_available; then
 fi
 
 # Quarter
-if $BUILD_WITH_MSVC; then
-  rm -f vc80.pdb
-  QUARTER_BUILD_CPPFLAGS="$QUARTER_BUILD_CPPFLAGS $sim_ac_msvcrt_CPPFLAGS"
-  QUARTER_BUILD_CXXFLAGS="$QUARTER_BUILD_CPPFLAGS $sim_ac_msvcrt_CXXFLAGS /EHs"
-  QUARTER_BUILD_CFLAGS="$QUARTER_BUILD_CPPFLAGS $sim_ac_msvcrt_CFLAGS"
-
-  QUARTER_LIBFLAGS="$QUARTER_LIBFLAGS $sim_ac_msvcrt_LIBLDFLAGS"
-  QUARTER_LIBS="$LIBS $sim_ac_msvcrt_LIBLIBS"
-
-  QUARTER_USE_LIBS="-lQuarter${QUARTER_MAJOR_VERSION}${SUFFIX}"
-
-  if $QUARTER_STATIC; then
-    QUARTER_LIBFLAGS="-LIB /INCREMENTAL:NO $QUARTER_LIBFLAGS"
-    QUARTER_LIBFLAGS="$QUARTER_LIBFLAGS /OUT:Quarter${QUARTER_MAJOR_VERSION}${SUFFIX}.lib"
-  else
-    QUARTER_LIBFLAGS="-DLL /INCREMENTAL:NO $QUARTER_LIBFLAGS"
-    QUARTER_LIBFLAGS="$QUARTER_LIBFLAGS /OUT:Quarter${QUARTER_MAJOR_VERSION}${SUFFIX}.dll"
-  fi
-
-  if $QUARTER_RELEASE; then
-    QUARTER_LIBFLAGS="$QUARTER_LIBFLAGS /RELEASE"
-  else
-    debugfile="`pwd`/src/Quarter/Quarter${QUARTER_MAJOR_VERSION}${SUFFIX}.pdb"
-    debugfile=`cygpath -w "$debugfile" | sed 's,\\\\,\\\\\\\\,g'`
-
-    QUARTER_BUILD_CFLAGS="/Fd$debugfile -g $QUARTER_BUILD_CFLAGS"
-    QUARTER_BUILD_CXXFLAGS="/Fd$debugfile -g $QUARTER_BUILD_CXXFLAGS"
-    QUARTER_LIBFLAGS="$QUARTER_LIBFLAGS /DEBUG /PDB:Quarter${QUARTER_MAJOR_VERSION}${SUFFIX}.pdb"
-  fi
-fi
-
 # Mac OS X flags for Plugin
 case $host_os in
 darwin*)
@@ -769,32 +685,6 @@ cygwin | mingw32)
   ;;
 esac
 
-if $BUILD_WITH_MSVC; then
-  PLUGIN_BUILD_CPPFLAGS="$PLUGIN_BUILD_CPPFLAGS $sim_ac_msvcrt_CPPFLAGS"
-  PLUGIN_BUILD_CXXFLAGS="$PLUGIN_BUILD_CPPFLAGS $sim_ac_msvcrt_CXXFLAGS"
-  PLUGIN_BUILD_CFLAGS="$PLUGIN_BUILD_CPPFLAGS $sim_ac_msvcrt_CFLAGS"
-  PLUGIN_LIBFLAGS="$PLUGIN_LIBFLAGS $sim_ac_msvcrt_LIBLDFLAGS"
-
-  if $QUARTER_STATIC; then
-    PLUGIN_BUILD_LIBFLAGS="-LIB /INCREMENTAL:NO $PLUGIN_BUILD_LIBFLAGS"
-    PLUGIN_BUILD_LIBFLAGS="$PLUGIN_BUILD_LIBFLAGS /OUT:QuarterWidgetPlugin${QUARTER_MAJOR_VERSION}${SUFFIX}.lib"
-  else
-    PLUGIN_BUILD_LIBFLAGS="-DLL /INCREMENTAL:NO $PLUGIN_BUILD_LIBFLAGS"
-    PLUGIN_BUILD_LIBFLAGS="$PLUGIN_BUILD_LIBFLAGS /OUT:QuarterWidgetPlugin${QUARTER_MAJOR_VERSION}${SUFFIX}.dll"
-  fi
-
-  if $QUARTER_RELEASE; then
-    PLUGIN_BUILD_LIBFLAGS="$PLUGIN_BUILD_LIBFLAGS /RELEASE"
-  else
-    debugfile="`pwd`/src/plugins/QuarterWidgetPlugin${QUARTER_MAJOR_VERSION}${SUFFIX}.pdb"
-    debugfile=`cygpath -w "$debugfile" | sed 's,\\\\,\\\\\\\\,g'`
-
-    PLUGIN_BUILD_CFLAGS="/Fd$debugfile -g $PLUGIN_BUILD_CFLAGS"
-    PLUGIN_BUILD_CXXFLAGS="/Fd$debugfile -g $PLUGIN_BUILD_CXXFLAGS"
-    PLUGIN_BUILD_LIBFLAGS="$PLUGIN_BUILD_LIBFLAGS /DEBUG /PDB:QuarterWidgetPlugin${QUARTER_MAJOR_VERSION}${SUFFIX}.pdb"
-  fi
-fi
-
 # Examples
 AC_SUBST([EXAMPLES_BUILD_CPPFLAGS])
 AC_SUBST([EXAMPLES_BUILD_CXXFLAGS])
@@ -802,21 +692,6 @@ AC_SUBST([EXAMPLES_BUILD_CFLAGS])
 AC_SUBST([EXAMPLES_BUILD_LDFLAGS])
 AC_SUBST([EXAMPLES_BUILD_LIBFLAGS])
 
-if $BUILD_WITH_MSVC; then
-  EXAMPLES_BUILD_CPPFLAGS="$EXAMPLES_BUILD_CPPFLAGS $sim_ac_msvcrt_CPPFLAGS"
-  EXAMPLES_BUILD_CXXFLAGS="$EXAMPLES_BUILD_CPPFLAGS $sim_ac_msvcrt_CXXFLAGS"
-  EXAMPLES_BUILD_CFLAGS="$EXAMPLES_BUILD_CPPFLAGS $sim_ac_msvcrt_CFLAGS"
-  EXAMPLES_LIBFLAGS="$EXAMPLES_LIBFLAGS $sim_ac_msvcrt_LIBLDFLAGS"
-
-  EXAMPLES_BUILD_LIBFLAGS="/INCREMENTAL:NO $EXAMPLES_BUILD_LIBFLAGS"
-
-  if $QUARTER_RELEASE; then
-    EXAMPLES_BUILD_LIBFLAGS="$EXAMPLES_BUILD_LIBFLAGS /RELEASE"
-  else
-    EXAMPLES_BUILD_LIBFLAGS="$EXAMPLES_BUILD_LIBFLAGS /DEBUG"
-  fi
-
-fi
 
 AC_CONFIG_FILES([
 	Makefile

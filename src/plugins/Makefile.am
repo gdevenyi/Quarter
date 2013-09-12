@@ -1,14 +1,7 @@
-if BUILD_WITH_MSVC
-includes = \
-        -I$(QTDIR)/include \
-        -I$(QTDIR)/include/QtOpenGL \
-        -I$(top_srcdir)/include \
-        -I$(top_srcdir)/src/Quarter
-else
+
 includes = \
         -I$(top_srcdir)/include \
         -I$(top_srcdir)/src/Quarter
-endif
 
 DEFAULT_INCLUDES = $(includes)
 
@@ -39,40 +32,17 @@ BUILT_SOURCES = $(BuiltSources)
 libQuarterWidgetPlugin_la_SOURCES = \
         $(RegularSources) $(PrivateHeaders)
 
-QuarterWidgetPlugin@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_SOURCES = \
-        $(RegularSources) $(PrivateHeaders)
-
 nodist_libQuarterWidgetPlugin_la_SOURCES = \
-        $(BuiltSources)
-
-nodist_QuarterWidgetPlugin@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_SOURCES = \
         $(BuiltSources)
 
 EXTRA_DIST = \
         coinlogo.qrc \
         coinlogo.png
 
-
-if BUILD_WITH_MSVC
-lib_LIBRARIES = QuarterWidgetPlugin@QUARTER_MAJOR_VERSION@@SUFFIX@.lib
-else
 lib_LTLIBRARIES = libQuarterWidgetPlugin.la
-endif
 
 libQuarterWidgetPlugin_la_LIBADD = \
         $(QUARTER_USE_LIBS) $(COIN_USE_LIBS) $(QT_USE_LIBS)
-
-QuarterWidgetPlugin@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
-        $(QUARTER_USE_LIBS) $(COIN_USE_LIBS) $(QT_USE_LIBS)
-
-QuarterWidgetPlugin@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_CPPFLAGS = \
-        $(PLUGIN_BUILD_CPPFLAGS) $(QUARTER_USE_CPPFLAGS) $(COIN_USE_CPPFLAGS) $(QT_USE_CPPFLAGS) $(QT_DESIGNER_INCLUDE)
-
-QuarterWidgetPlugin@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_CXXFLAGS = \
-        $(PLUGIN_BUILD_CXXFLAGS) $(COIN_USE_CXXFLAGS) $(QT_USE_CXXFLAGS)
-
-QuarterWidgetPlugin@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_CFLAGS = \
-        $(PLUGIN_BUILD_CFLAGS) $(COIN_USE_CFLAGS) $(QT_USE_CFLAGS)
 
 libQuarterWidgetPlugin_la_CPPFLAGS = \
         $(PLUGIN_BUILD_CPPFLAGS) $(QUARTER_USE_CPPFLAGS) $(COIN_USE_CPPFLAGS) $(QT_USE_CPPFLAGS) $(QT_DESIGNER_INCLUDE)
@@ -125,23 +95,6 @@ moc_QuarterWidgetPlugin.cpp: $(srcdir)/QuarterWidgetPlugin.h
 qrc_coinlogo.cpp: $(srcdir)/coinlogo.qrc
 	$(RCC) -name coinlogo -o $@ `$(UNIX2WINPATH) $(srcdir)/coinlogo.qrc`
 
-if BUILD_WITH_MSVC
-all-local: QuarterWidgetPlugin@QUARTER_MAJOR_VERSION@@SUFFIX@.lib
-
-install-exec-local: QuarterWidgetPlugin@QUARTER_MAJOR_VERSION@@SUFFIX@.lib
-	@basename="QuarterWidgetPlugin@QUARTER_MAJOR_VERSION@@SUFFIX@"; \
-	for ext in dll pdb; do \
-	  file="$$basename.$$ext"; \
-	  if test -s "$$file"; then \
-	    $(mkinstalldirs) "$(DESTDIR)$(bindir)"; \
-	    echo $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(bindir)/$$file"; \
-	    $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(bindir)/$$file" || exit 1; \
-	  fi \
-	done
-else
-install-exec-local:
-endif
-
 install-data-local:
 	@basename="QuarterWidgetPlugin@QUARTER_MAJOR_VERSION@@SUFFIX@"; \
 	for ext in lib; do \
@@ -156,9 +109,7 @@ install-data-local:
 uninstall-local:
 	@basename="QuarterWidgetPlugin@QUARTER_MAJOR_VERSION@@SUFFIX@"; \
 	for file in \
-	  "$(DESTDIR)$(bindir)/$$basename.dll" \
-	  "$(DESTDIR)$(bindir)/$$basename.pdb" \
-	  "$(DESTDIR)$(libdir)/$$basename.lib"; do \
+	  "$(DESTDIR)$(bindir)/$$basename.dll"; do \
 	  if test -f "$$file"; then \
 	    echo " rm -f" "$$file"; \
 	    rm -f "$$file"; \

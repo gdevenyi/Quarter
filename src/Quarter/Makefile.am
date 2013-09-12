@@ -9,14 +9,6 @@ else
 LibtoolLinkArgs = 
 endif
 
-if BUILD_WITH_MSVC
-includes = \
-        -I$(QTDIR)/include \
-        -I$(QTDIR)/include/QtOpenGL \
-        -I$(QTDIR)/include/QtGui \
-        -I$(QTDIR)/include/QtCore
-endif
-
 DEFAULT_INCLUDES = $(includes) \
         -I$(top_srcdir)/include \
         -I$(top_srcdir)/src/Quarter \
@@ -73,24 +65,8 @@ libQuarter_la_SOURCES = \
         $(RegularSources) \
         $(PrivateHeaders)
 
-Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_SOURCES = \
-        $(RegularSources) \
-        $(PrivateHeaders)
-
 nodist_libQuarter_la_SOURCES = \
         $(BuiltSources)
-
-nodist_Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_SOURCES = \
-        $(BuiltSources)
-
-Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_CPPFLAGS = \
-        $(QUARTER_BUILD_CPPFLAGS) $(COIN_USE_CPPFLAGS) $(QT_USE_CPPFLAGS)
-
-Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_CXXFLAGS = \
-        $(QUARTER_BUILD_CXXFLAGS) $(COIN_USE_CXXFLAGS) $(QT_USE_CXXFLAGS)
-
-Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_CFLAGS = \
-        $(QUARTER_BUILD_CFLAGS) $(COIN_USE_CFLAGS) $(QT_USE_CFLAGS)
 
 libQuarter_la_CPPFLAGS = \
         $(QUARTER_BUILD_CPPFLAGS) $(COIN_USE_CPPFLAGS) $(QT_USE_CPPFLAGS)
@@ -105,12 +81,7 @@ libQuarter_la_LDFLAGS = \
         -no-undefined \
         $(LibtoolLinkArgs) $(COIN_USE_LDFLAGS) $(QT_USE_LDFLAGS)
 
-
-if BUILD_WITH_MSVC
-lib_LIBRARIES = Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@.lib
-else
 lib_LTLIBRARIES = libQuarter.la
-endif 
 
 if MAC_FRAMEWORK
 # hack to change libdir value when installing Mac OS X compiler framework
@@ -120,37 +91,12 @@ endif
 libQuarter_la_LIBADD = \
         $(COIN_USE_LIBS) $(QT_USE_LIBS)
 
-Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
-        $(COIN_USE_LIBS) $(QT_USE_LIBS)
-
 
 CLEANFILES = \
         $(BuiltSources) \
-        Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@.lib \
         Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@.exp \
         Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@.dll \
-        Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@.pdb \
         Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@.dll.manifest
-
-Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@.lib: Makefile \
-	$(Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS) \
-	$(Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_DEPENDENCIES)
-	@basename="Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@"; \
-	rm -f "$$basename.dll" "$$basename.lib"; \
-	echo "Linking $$basename.lib..."; \
-	echo $(CC) $(LDFLAGS) \
-          $(QUARTER_LIBFLAGS) \
-	  $(Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS) \
-          $(Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_LIBADD) \
-          $(COIN_USE_LDFLAGS) \
-          $(QT_USE_LDFLAGS); \
-	$(CC) $(LDFLAGS) \
-        $(QUARTER_LIBFLAGS) \
-	  $(Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS) \
-	  $(Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@_lib_LIBADD) \
-          $(COIN_USE_LDFLAGS) \
-          $(QT_USE_LDFLAGS);
-
 
 moc_QuarterWidget.cpp: $(top_srcdir)/include/Quarter/QuarterWidget.h
 	$(MOC) -o $@ `$(UNIX2WINPATH) $(top_srcdir)/include/Quarter/QuarterWidget.h`
@@ -176,22 +122,6 @@ moc_InteractionMode.cpp: $(srcdir)/InteractionMode.h
 moc_FocusHandler.cpp: $(top_srcdir)/include/Quarter/eventhandlers/FocusHandler.h
 	$(MOC) -o $@ `$(UNIX2WINPATH) $(top_srcdir)/include/Quarter/eventhandlers/FocusHandler.h`
 
-if BUILD_WITH_MSVC
-all-local: Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@.lib
-
-install-exec-local: Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@.lib
-	@basename="Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@"; \
-	for ext in dll pdb; do \
-	  file="$$basename.$$ext"; \
-	  if test -s "$$file"; then \
-	    $(mkinstalldirs) "$(DESTDIR)$(bindir)"; \
-	    echo $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(bindir)/$$file"; \
-	    $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(bindir)/$$file" || exit 1; \
-	  fi \
-	done
-else
-install-exec-local:
-endif
 
 if MAC_FRAMEWORK
 install-data-local:
@@ -220,9 +150,7 @@ endif
 uninstall-local:
 	@basename="Quarter@QUARTER_MAJOR_VERSION@@SUFFIX@"; \
 	for file in \
-	  "$(DESTDIR)$(bindir)/$$basename.dll" \
-	  "$(DESTDIR)$(bindir)/$$basename.pdb" \
-	  "$(DESTDIR)$(libdir)/$$basename.lib"; do \
+	  "$(DESTDIR)$(bindir)/$$basename.dll"; do \
 	  if test -f "$$file"; then \
 	    echo " rm -f" "$$file"; \
 	    rm -f "$$file"; \
