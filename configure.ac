@@ -45,7 +45,8 @@ AM_CONFIG_HEADER(config.h)
 
 AM_INIT_AUTOMAKE([subdir-objects])
 AM_MAINTAINER_MODE
-AC_PREREQ(2.50)
+AC_PREREQ(2.69)
+AC_CONFIG_MACRO_DIR([cfg/m4])
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL
@@ -340,7 +341,10 @@ if $sim_ac_enable_pkgconfig && $sim_ac_build_library; then
     # pkg-config doesn't provide one. This is to ensure that binaries
     # for the same Qt versions are picked up. 20070828 tamer.
     if test `dirname $MOC` = `dirname $UIC`; then
-      AC_PATH_PROG([RCC], [rcc], [false], [`dirname $MOC`])
+      pushd `dirname $MOC` > /dev/null
+      pospath=`pwd`
+	  popd > /dev/null
+      AC_PATH_PROG([RCC], [rcc], [false], [$pospath])
       if test x"$RCC" = x"false"; then
         SIM_AC_ERROR([no-rcc])
       fi
@@ -539,11 +543,7 @@ else
       sim_ac_qt_suffix=d
     fi
 
-    if $QUARTER_STATIC; then
-      QT_USE_LIBS="-lQt5UiTools${sim_ac_qt_suffix} $QT_USE_LIBS -lQt5Designer${sim_ac_qt_suffix} -lQt5Xml${sim_ac_qt_suffix}"
-    else
-      QT_USE_LIBS="-lQt5UiTools${sim_ac_qt_suffix} $QT_USE_LIBS -lQt5Designer${sim_ac_qt_suffix}5 -lQt5Xml${sim_ac_qt_suffix}5"
-    fi
+    QT_USE_LIBS="-lQt5UiTools${sim_ac_qt_suffix} $QT_USE_LIBS -lQt5Designer${sim_ac_qt_suffix} -lQt5Xml${sim_ac_qt_suffix}"
 
   else
     QT_USE_LIBS="-lQt5UiTools -lQt5Designer -lQt5Xml $QT_USE_LIBS"
@@ -594,7 +594,7 @@ if test "x$QT_DESIGNER_PLUGIN_PATH" = x && $sim_ac_build_library; then
     QT_DESIGNER_PLUGIN_PATH=`qmake -query "QT_INSTALL_PLUGINS"`/designer
   fi
   # if we could not get the default location from qmake, use libdir
-  if test "x$QT_DESIGNER_PLUGIN_PATH" = x; then 
+  if test x"$QT_DESIGNER_PLUGIN_PATH" = x; then 
     QT_DESIGNER_PLUGIN_PATH=`eval echo "${libdir}"`/designer
     SIM_AC_CONFIGURATION_WARNING([Qt Designer plugin directory was not resolved. Installing plugin in $QT_DESIGNER_PLUGIN_PATH])
     SIM_AC_CONFIGURATION_WARNING([don't forget to set QT_PLUGIN_PATH to: `eval echo "${libdir}"`])
@@ -677,8 +677,8 @@ cygwin | mingw32)
   -DQT_THREAD_SUPPORT \
   $PLUGIN_BUILD_CPPFLAGS"
   
-  if test $sim_ac_qt_debug = false; then
-    PLUGIN_BUILD_CPPFLAGS="\
+  if test "$sim_ac_qt_debug" = "false"; then
+    PLUGIN_BUILD_CPPFLAGS=" \
   -DQT_NO_DEBUG \
   $PLUGIN_BUILD_CPPFLAGS"
   fi

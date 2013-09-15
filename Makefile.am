@@ -1,3 +1,4 @@
+ACLOCAL_AMFLAGS = -I cfg/m4
 
 if BUILD_HTMLPAGES
 HTMLDIR = html

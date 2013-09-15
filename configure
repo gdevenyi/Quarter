@@ -3270,6 +3270,7 @@ fi
 
 
 
+
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -8684,6 +8685,10 @@ _lt_linker_boilerplate=`cat conftest.err`
 $RM -r conftest*
 
 
+## CAVEAT EMPTOR:
+## There is no encapsulation within the following macros, do not change
+## the running order or otherwise move them around unless you know exactly
+## what you are doing...
 if test -n "$compiler"; then
 
 lt_prog_compiler_no_builtin_flag=
@@ -16430,6 +16435,9 @@ as_fn_error $? "aborting" "$LINENO" 5
     # pkg-config doesn't provide one. This is to ensure that binaries
     # for the same Qt versions are picked up. 20070828 tamer.
     if test `dirname $MOC` = `dirname $UIC`; then
+      pushd `dirname $MOC` > /dev/null
+      pospath=`pwd`
+	  popd > /dev/null
       # Extract the first word of "rcc", so it can be a program name with args.
 set dummy rcc; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -16443,7 +16451,7 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in `dirname $MOC`
+for as_dir in $pospath
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
@@ -19092,11 +19100,7 @@ else
       sim_ac_qt_suffix=d
     fi
 
-    if $QUARTER_STATIC; then
-      QT_USE_LIBS="-lQt5UiTools${sim_ac_qt_suffix} $QT_USE_LIBS -lQt5Designer${sim_ac_qt_suffix} -lQt5Xml${sim_ac_qt_suffix}"
-    else
-      QT_USE_LIBS="-lQt5UiTools${sim_ac_qt_suffix} $QT_USE_LIBS -lQt5Designer${sim_ac_qt_suffix}5 -lQt5Xml${sim_ac_qt_suffix}5"
-    fi
+    QT_USE_LIBS="-lQt5UiTools${sim_ac_qt_suffix} $QT_USE_LIBS -lQt5Designer${sim_ac_qt_suffix} -lQt5Xml${sim_ac_qt_suffix}"
 
   else
     QT_USE_LIBS="-lQt5UiTools -lQt5Designer -lQt5Xml $QT_USE_LIBS"
@@ -19201,7 +19205,7 @@ if test "x$QT_DESIGNER_PLUGIN_PATH" = x && $sim_ac_build_library; then
     QT_DESIGNER_PLUGIN_PATH=`qmake -query "QT_INSTALL_PLUGINS"`/designer
   fi
   # if we could not get the default location from qmake, use libdir
-  if test "x$QT_DESIGNER_PLUGIN_PATH" = x; then
+  if test x"$QT_DESIGNER_PLUGIN_PATH" = x; then
     QT_DESIGNER_PLUGIN_PATH=`eval echo "${libdir}"`/designer
 
 if test x"${sim_ac_configuration_warnings+set}" = x"set"; then
@@ -19412,8 +19416,8 @@ cygwin | mingw32)
   -DQT_THREAD_SUPPORT \
   $PLUGIN_BUILD_CPPFLAGS"
 
-  if test $sim_ac_qt_debug = false; then
-    PLUGIN_BUILD_CPPFLAGS="\
+  if test "$sim_ac_qt_debug" = "false"; then
+    PLUGIN_BUILD_CPPFLAGS=" \
   -DQT_NO_DEBUG \
   $PLUGIN_BUILD_CPPFLAGS"
   fi
