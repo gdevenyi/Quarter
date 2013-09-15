@@ -34,7 +34,7 @@
 \**************************************************************************/
 
 #include <QtCore/QSize>
-#include <QtGui/QMdiSubWindow>
+#include <QtWidgets/QMdiSubWindow>
 
 namespace SIM { namespace Coin3D { namespace Quarter {
   class QuarterWidget;

@@ -34,7 +34,7 @@
 \**************************************************************************/
 
 
-#include <QtGui/QMainWindow>
+#include <QtWidgets/QMainWindow>
 
 class QString;
 class QGLWidget;
